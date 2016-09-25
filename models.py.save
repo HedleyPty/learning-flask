@@ -1,0 +1,45 @@
+from flask.ext.sqlalchemy import SQLAlchemy
+from werkzeug import generate_password_hash, check_password_hash
+import geocoder, urllib2,json
+db = SQLAlchemy()
+
+class User(db.Model):
+    __tablename__ = "users"
+    uid =  db.Column(db.Integer, primary_key = True)
+    firstname = db.Column(db.String(100))
+    lastname = db.Column(db.String(100))
+    email = db.Column(db.String(100), unique=True)
+    pwhash = db.Column(db.String(54))
+    
+    def __init__(self, firstname, lastname, email, password):
+        self.firstname=firstname.title()
+        self.lastname=lastname.title()
+        self.email=email.lower()
+        self.set_password(password)
+    
+    def set_password(self, p):
+        self.pwhash = generate_password_hash(p)
+    
+    def check_password(self, p):
+        return check_password_hash(self.pwhash, p)
+
+class Place(object):
+    def meter_to_walking_time(self, meters):
+        return int(meters/80)
+    def address_to_lat_lng(self, address):
+        g=geocoder.google(address)
+        return (g.lat,g.lng)
+
+    def query(self,address):
+        lat,lng = self.address_to_lat_lng(address)
+        print  lat,lng 
+ 
+        query_url="https://en.wikipedia.org/w/api.php?action=query&list=geosearch&gsradius=5000&gscoord={0}%7C{1}&gslimit=20&format=json".format(lat,lng)
+        g= urllib2.urlopen(query_url)
+        results=g.read()
+        g.close()
+       
+        data=json.loads(results)
+        print data
+        
+        place=[data for data in data['query']['geosearch']]

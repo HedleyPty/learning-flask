@@ -1,8 +1,8 @@
 
 from flask import Flask, render_template, request, session, redirect, url_for
-from models import db, User
+from models import db, User,Place
 
-from forms import SignUpForm,LoginForm
+from forms import SignUpForm,LoginForm,AddressForm
 
 app=Flask(__name__)
 app.config ["SQLALCHEMY_DATABASE_URI"] = "sqlite:////home/hedley/Documents/learning-flask/learning-flask.db"
@@ -63,11 +63,24 @@ def logout():
     session.pop("email",None)
     return redirect(url_for("index"))
 
-@app.route("/home")
+@app.route("/home", methods=['GET',"POST"])
 def home():
     if 'email' not in session:
         return redirect(url_for("login"))
-    return render_template("home.html")
+    form = AddressForm()
+    coord=(0,0)
+    places=[]
+    if request.method=="POST":
+        if not form.validate():
+            return render_template("home.html", form=form)
+        else:
+            address=form.address.data
+            p=Place()
+            coords=p.address_to_lat_lng(address)
+            places=p.query(address)
+            return render_template("home.html", form=form, coords=coords,places=places)
+    if request.method=="GET":
+        return render_template("home.html", form=form, coords=coords, places=places)
 
 if __name__ == "__main__":
     app.run(debug=True)

@@ -3,7 +3,7 @@
 <head>
 <link href="http://fonts.googleapis.com/css?family=OpenSans:300,400,600" rel="stylesheet"/>
 <link href="{{ url_for('static', filename='css/main.css')  }}" rel="stylesheet"/>
-
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.css" />
 </head>
 <body>
 <header>
@@ -14,6 +14,6 @@
 {% block content  %}
 {% endblock %}
 
-
+<script src="https://unpkg.com/leaflet@1.0.0-rc.3/dist/leaflet.js"></script>
 </body>
 </html>

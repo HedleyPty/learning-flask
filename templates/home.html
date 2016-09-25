@@ -3,8 +3,47 @@
 <main class="hero-section">
 	<div class="container">
 		<div class = "section-content">
-		<h1>Home</h1>
-		</div>
-	</div>
+                <div class="section-tabs"></div>
+                <div class="section-map">
+		<div class="nav">            
+ 	<form method="POST" action="/home">
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+                
+                {% if form.address.errors %}
+                {% for er in form.address.errors %}
+                <p class="error-message">{{er}}</p>
+                {% endfor %}
+                {% endif %}
+                {{ form.address(placeholder="Explore nearby") }}
+        </div>
+
+
+                {{ form.submit(class="btn-primary") }}
+
+        </form>		
+</div>
+<div id="map"></div>
+</div>
+
+	</div></div>
+<div class="clearfix"></div>
 </main>
+<script>
+var places=[
+
+{% for place in places %}
+["<h3><a href='{{ place ['url'] }}' tager='_blank''>{{place['name']}}</a></h3><p>{{ place['time'] }} min away</p>", {{ place['lat'] }},{{ place['lng'] }}],
+{% endfor %}
+
+];
+var mymap = L.map('map').setView([{{ coords[0] }}, {{ coords[1] }}, 15]);
+L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}', {
+    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery Â© <a href="http://mapbox.com">Mapbox</a>',
+    maxZoom: 18,
+    id: 'your.mapbox.project.id',
+    accessToken: 'your.mapbox.public.access.token'
+}).addTo(mymap);
+</script>
 {% endblock %}
