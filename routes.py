@@ -21,6 +21,8 @@ def about():
 
 @app.route("/signup", methods=['GET',"POST"])
 def signup():
+    if 'email' in session:
+        return redirect(url_for('home'))
     form=SignUpForm()
     if request.method == "POST":
         if not form.validate():
@@ -32,11 +34,14 @@ def signup():
             db.session.commit()
             session["email"]=newuser.email
             return redirect(url_for("home"))
+    
     elif request.method == "GET":
         return render_template("signup.html", form=form)
 
 @app.route("/login", methods=['GET',"POST"])
 def login():
+    if 'email' in session:
+        return redirect(url_for('home'))
     form=LoginForm()
     if request.method == "POST":
         if not form.validate():
@@ -45,8 +50,7 @@ def login():
             email = form.email.data
             passw = form.password.data
             user = User.query.filter_by(email=email).first()
-            print passw
-            print email
+            session['email']=email
             if user is not None and user.check_password(passw):
                 return redirect(url_for("home"))
             else:
@@ -61,6 +65,8 @@ def logout():
 
 @app.route("/home")
 def home():
+    if 'email' not in session:
+        return redirect(url_for("login"))
     return render_template("home.html")
 
 if __name__ == "__main__":
